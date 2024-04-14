@@ -19,4 +19,6 @@ const String password = "123";
 String stars = "***";
 String input_password = "";
 
+void checkPressedKey(char key);
+
 #endif
