@@ -17,13 +17,13 @@ void beep(unsigned long current_time) {
 }
 
 void clearPassword() {
-  Serial.println("Clearing input...");
   input_password = "";
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Clearing input...");
   lcd.setCursor(0, 1);
   lcd.print("--------------------");
+  Serial.println("Clearing input...");
   delay(1000);
   lcd.clear();
   printStars();
@@ -33,7 +33,6 @@ void enterPassword() {
   switch(BombState) {
     case WaitingForInput:
       if(input_password == password) {
-        Serial.println("The bomb has been planted");
         BombState = Armed;
         time_of_bomb_activation = millis() + 1000;
         next_beep = time_of_bomb_activation;
@@ -44,26 +43,17 @@ void enterPassword() {
         lcd.print("HAS BEEN");
         lcd.setCursor(7, 2);
         lcd.print("PLANTED");
+        Serial.println("The bomb has been planted");
         delay(1000);
         lcd.clear();
         printStars();
       }
-      else {
-        Serial.println("Wrong password, try again");
-        lcd.clear();
-        lcd.setCursor(4, 1); 
-        lcd.print("WRONG PASSWORD");
-        lcd.setCursor(6, 2); 
-        lcd.print("TRY AGAIN");
-        delay(1000);
-        lcd.clear();
-        printStars();
-      }
+      else 
+        wrongPassword();
       break;
 
     case Armed:
       if(input_password == password) {
-        Serial.println("The bomb has been defused");
         BombState = Disarmed;
         lcd.clear();
         lcd.setCursor(6, 0);
@@ -72,50 +62,76 @@ void enterPassword() {
         lcd.print("HAS BEEN");
         lcd.setCursor(7, 2);
         lcd.print("DEFUSED");
+        Serial.println("The bomb has been defused");
         delay(1000);
         lcd.clear();
       }
-      else {
-        Serial.println("Wrong password, try again");
-        lcd.clear();
-        lcd.setCursor(4, 1); 
-        lcd.print("WRONG PASSWORD");
-        lcd.setCursor(6, 2); 
-        lcd.print("TRY AGAIN");
-        delay(1000);
-        lcd.clear();
-      }
+      else
+        wrongPassword();
       break;
 
-    case Settings:
-      break;
-
-    case Disarmed: case Exploded:
-      Serial.println("Restarting...");
-      BombState = WaitingForInput;
+    case ChangePassword:
+      BombState = SettingsMenu;
+      password = input_password;
+      setStars();
       lcd.clear();
-      lcd.setCursor(0, 1); 
-      lcd.print("Restarting...");  
+      lcd.setCursor(0, 1);
+      lcd.print("NEW PASSWORD SET!");
+      lcd.setCursor(0, 2);
+      lcd.print(password);
       delay(1000);
       lcd.clear();
-      printStars();
       break;
   }
   input_password = "";
 }
 
-void checkPressedKey(char key) {
-  if(!key) return ;
-  if(key == '*')
-    clearPassword();
-  else if(key == '#') 
-    enterPassword();
-  else {
-    Serial.println(password);
-    input_password += key;
+void wrongPassword() {
+  lcd.clear();
+  lcd.setCursor(4, 1); 
+  lcd.print("WRONG PASSWORD");
+  lcd.setCursor(6, 2); 
+  lcd.print("TRY AGAIN");
+  Serial.println("Wrong password, try again");
+  delay(1000);
+  lcd.clear();
+  printStars();
+}
+
+void inputPassword(char key) {
+  switch(key) {
+    case NO_KEY:
+      break;
+    case '*':
+      clearPassword();
+      break;
+    case '#':
+      enterPassword();
+      break;
+    default:
+      input_password += key;
+      printStars();
+      lcd.setCursor(0, 1);
+      lcd.print(input_password);
+      Serial.println(password);
+      break;
+  }
+}
+
+void restartBomb(char key) {
+  lcd.setCursor(10, 3); 
+  lcd.print("#->Restart");
+  Serial.println("Press # to restart");
+  if(key == '#') {
+    BombState = WaitingForInput;
+    input_password = "";
+    lcd.clear();
+    lcd.setCursor(0, 1); 
+    lcd.print("Restarting...");
+    Serial.println("Restarting...");  
+    delay(1000);
+    lcd.clear();
     printStars();
-    lcd.setCursor(0, 1);
-    lcd.print(input_password);
   }
 }
 

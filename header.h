@@ -8,11 +8,13 @@
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 enum BombStates {
-  Settings = 0,
-  WaitingForInput = 1,
-  Armed = 2,
-  Disarmed = 3,
-  Exploded = 4
+  WaitingForInput,
+  Armed,
+  Disarmed,
+  Exploded,
+  SettingsMenu,
+  ChangePassword,
+  ChangeTimer
 };
 
 enum BombStates BombState = WaitingForInput;
@@ -32,7 +34,7 @@ Keypad keypad = Keypad(makeKeymap(keys), pin_rows, pin_columns, 4, 3);
 const int buzzer = 12;                   // PIN
 const int led = 13;                      // PIN
 const unsigned short beep_length = 125;  // miliseconds
-const float init_timer = 45000;          // float because of the formula in findNextBeep()
+float init_timer = 45000;          // float because of the formula in findNextBeep()
 unsigned short time_left = init_timer;
 unsigned long time_of_bomb_activation, next_beep = 1000, last_beep = 0;
 
@@ -48,7 +50,10 @@ void beep(unsigned long current_time);
 
 void clearPassword();
 void enterPassword();
-void checkPressedKey(char key);
+void wrongPassword();
+void inputPassword(char key);
+
+void restartBomb(char key);
 
 void setStars();
 void printStars(); 
