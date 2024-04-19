@@ -34,35 +34,39 @@ Keypad keypad = Keypad(makeKeymap(keys), pin_rows, pin_columns, 4, 3);
 const int buzzer = 12;                   // PIN
 const int led = 13;                      // PIN
 const unsigned int beep_length = 125;  // miliseconds
-float init_timer = 45000;          // float because of the formula in findNextBeep()
-unsigned long time_of_bomb_activation, next_beep = 1000, last_beep = 0;
+double init_timer = 40000;          // double because of the formula in findNextBeep()
+unsigned long time_of_bomb_activation, next_beep;
 
 String password = "1234";                // default password
+String stars = "";
+unsigned int password_length = 0;
+
 String input_password = "";
 String input_timer = "";
+unsigned int input_length = 0;
 
-String stars = "";
 String exmarks = "";
 unsigned int number_of_exmarks = 0;
 
 // Uses a formula to return the exact time of when next beep should happen.
-unsigned long findNextBeep(unsigned long current_time, unsigned int time_left);
+unsigned long findNextBeep(unsigned long current_time, unsigned long time_left);
 
 // Responsible for buzzer and LED activation.
-void beep(unsigned long current_time, unsigned int time_left);
+void beep(unsigned long current_time, unsigned long time_left);
+void finalBeep();
 
 void clearInput();
 void inputPassword(char key);
 void enterPassword();
 void wrongPassword();
 void inputTimer(char key);
-float convertInputTimer();
+double convertInputTimer();
 
 void restartBomb(char key);
 
-void printTimeLeft(unsigned int time_left);
-void setStars();
+void updatePasswordLength();
 void printStars();
+void printTimeLeft(unsigned long time_left);
 // Loading Bar 
 void printExMarks(unsigned int new_number_of_exmarks); 
 

@@ -6,23 +6,9 @@ void setup()
   pinMode(led, OUTPUT);
 	lcd.begin();
 	lcd.backlight();
-  
   Serial.begin(9600);
-  Serial.println("______________________________________");
-  Serial.println("");
-  Serial.println("");
-  Serial.println("");
-  Serial.println("");
-  Serial.println("");
-  Serial.println("");
-  Serial.println("");
-  Serial.println("");
-  /*
-  // max input characters
-  input_password.reserve(20); // one row on the display
-  input_timer.reserve(3);  // up to 999
-  */
-  setStars();
+
+  updatePasswordLength();
   printStars();
 }
 
@@ -38,7 +24,6 @@ void loop()
         lcd.print("*->Settings");
         if(pressed_key && pressed_key == '*'){
           BombState = SettingsMenu;
-          Serial.println("Going to settings");
           lcd.clear();
           break;
         }
@@ -58,8 +43,8 @@ void loop()
       inputPassword(pressed_key);
       
       unsigned long current_time = millis();
-      unsigned int time_passed = current_time - time_of_bomb_activation;
-      unsigned int time_left = init_timer - time_passed;
+      unsigned long time_passed = current_time - time_of_bomb_activation;
+      unsigned long time_left = init_timer - time_passed;
       beep(current_time, time_left);
       printTimeLeft(time_left);
       printExMarks((time_passed / init_timer) * 10);
@@ -69,6 +54,7 @@ void loop()
         lcd.setCursor(0, 2);
         lcd.print(exmarks);
         lcd.print(exmarks);
+        finalBeep();
       }
       break;
     }
@@ -118,7 +104,7 @@ void loop()
         lcd.print("#->Back");
         if(pressed_key == '#') {
           BombState = SettingsMenu;
-          setStars();
+          updatePasswordLength();
           lcd.clear();
           break;
         }
