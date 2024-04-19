@@ -26,8 +26,6 @@ void setup()
 void loop()
 {
   char pressed_key = keypad.getKey();
-  unsigned long current_time = millis();
-
   switch(BombState) {
     case WaitingForInput:
       lcd.setCursor(0, 0); 
@@ -48,27 +46,30 @@ void loop()
       }
       inputPassword(pressed_key);
       break;
-
-    case Armed:
+      
+    case Armed: {
       lcd.setCursor(0, 0); 
       lcd.print("Enter password:");
       lcd.setCursor(0, 3); 
       lcd.print("*->Clear    #->Enter");
       inputPassword(pressed_key);
       
-      //(time_left / init_timer)  // % of time left (from 1 to 0)
-      //1 - (time_left / init_timer)  // % of time passed (from 0 to 1) 
-      beep(current_time);
-      time_left = init_timer - (current_time - time_of_bomb_activation);
-      lcd.setCursor(9, 2); 
-      lcd.print(time_left / 1000);
-      lcd.print(" ");
-      if(time_left > init_timer) {
+      unsigned long current_time = millis();
+      unsigned int time_passed = current_time - time_of_bomb_activation;
+      unsigned int time_left = init_timer - time_passed;
+      beep(current_time, time_left);
+      printTimeLeft(time_left);
+      printExMarks((time_passed / init_timer) * 10);
+      if(time_passed > init_timer) {
         BombState = Exploded;
         lcd.clear();
+        lcd.setCursor(0, 2);
+        lcd.print(exmarks);
+        lcd.print(exmarks);
       }
       break;
-    
+    }
+
     case Disarmed:
       Serial.println("Counter-terrorists win!");
       restartBomb(pressed_key);
@@ -78,7 +79,7 @@ void loop()
       Serial.println("Terrorists win!");
       restartBomb(pressed_key);
       break;
-    
+
     case SettingsMenu:
       lcd.setCursor(0, 0); 
       lcd.print("Press [] to:");
@@ -105,7 +106,7 @@ void loop()
           break;
       }
       break;
-    
+
     case ChangePassword:
       lcd.setCursor(0, 0); 
       lcd.print("Enter new password:");
@@ -127,6 +128,22 @@ void loop()
       break;
 
     case ChangeTimer:
+      lcd.setCursor(0, 0); 
+      lcd.print("Enter new duration for the countdown");
+      if(input_password == "") {
+        lcd.setCursor(12, 3);
+        lcd.print("#->Back");
+        if(pressed_key == '#') {
+          BombState = SettingsMenu;
+          lcd.clear();
+          break;
+        }
+      }
+      else {
+        lcd.setCursor(0, 3); 
+        lcd.print("*->Clear    #->Enter");
+      }
+      inputTimer(pressed_key);
       break;
 
     default:

@@ -1,10 +1,10 @@
 #include "header.h"
 
-unsigned long findNextBeep(unsigned long current_time) {
+unsigned long findNextBeep(unsigned long current_time, unsigned int time_left) {
   return (0.1 + 0.9 * (time_left / init_timer)) * 1000 + current_time;
 }
 
-void beep(unsigned long current_time) {
+void beep(unsigned long current_time, unsigned int time_left) {
   if(current_time >= next_beep) {
     tone(buzzer, 2200, beep_length);
     //tone(buzzer, 2564, BEEP_LENGTH);
@@ -12,7 +12,7 @@ void beep(unsigned long current_time) {
     digitalWrite(led, !digitalRead(led)); // toggle
 
     last_beep = current_time;
-    next_beep = findNextBeep(current_time);
+    next_beep = findNextBeep(current_time, time_left);
   }
 }
 
@@ -118,6 +118,22 @@ void inputPassword(char key) {
   }
 }
 
+void inputTimer(char key) {
+  switch(key) {
+    case NO_KEY:
+      break;
+    case '*':
+      //clearPassword();
+      break;
+    case '#':
+      //enterPassword();
+      break;
+    default:
+      //input_password += key;
+      break;
+  }
+}
+
 void restartBomb(char key) {
   lcd.setCursor(10, 3); 
   lcd.print("#->Restart");
@@ -135,6 +151,13 @@ void restartBomb(char key) {
   }
 }
 
+void printTimeLeft(unsigned int time_left) {
+  lcd.setCursor(9, 2);
+  if(time_left < 10000)
+    lcd.print(" ");
+  lcd.print(time_left / 1000);
+}
+
 void setStars() {
   for(int i = 0; password[i] != '\0'; i++) {
     stars += '*';
@@ -144,4 +167,15 @@ void setStars() {
 void printStars() {
   lcd.setCursor(0, 1); 
   lcd.print(stars);
+}
+
+void printExMarks(unsigned int new_number_of_exmarks) {
+  if(new_number_of_exmarks > number_of_exmarks) {
+    number_of_exmarks = new_number_of_exmarks;
+    exmarks += '!';
+  }
+  lcd.setCursor(0, 2);
+  lcd.print(exmarks);
+  lcd.setCursor(20 - number_of_exmarks, 2);
+  lcd.print(exmarks);
 }
