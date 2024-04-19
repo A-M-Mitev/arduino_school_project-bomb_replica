@@ -17,8 +17,11 @@ void setup()
   Serial.println("");
   Serial.println("");
   Serial.println("");
-
-  input_password.reserve(20); // max input characters
+  /*
+  // max input characters
+  input_password.reserve(20); // one row on the display
+  input_timer.reserve(3);  // up to 999
+  */
   setStars();
   printStars();
 }
@@ -46,7 +49,7 @@ void loop()
       }
       inputPassword(pressed_key);
       break;
-      
+
     case Armed: {
       lcd.setCursor(0, 0); 
       lcd.print("Enter password:");
@@ -87,7 +90,7 @@ void loop()
       lcd.print("[1] change password");
       lcd.setCursor(0, 2);
       lcd.print("[2] change timer"); 
-      lcd.setCursor(12, 3); 
+      lcd.setCursor(13, 3); 
       lcd.print("#->Back");
       switch(pressed_key) {
         case '1':
@@ -111,7 +114,7 @@ void loop()
       lcd.setCursor(0, 0); 
       lcd.print("Enter new password:");
       if(input_password == "") {
-        lcd.setCursor(12, 3); 
+        lcd.setCursor(13, 3); 
         lcd.print("#->Back");
         if(pressed_key == '#') {
           BombState = SettingsMenu;
@@ -129,9 +132,9 @@ void loop()
 
     case ChangeTimer:
       lcd.setCursor(0, 0); 
-      lcd.print("Enter new duration for the countdown");
-      if(input_password == "") {
-        lcd.setCursor(12, 3);
+      lcd.print("Enter new timer:");
+      if(input_timer == "") {
+        lcd.setCursor(13, 3);
         lcd.print("#->Back");
         if(pressed_key == '#') {
           BombState = SettingsMenu;
@@ -144,10 +147,6 @@ void loop()
         lcd.print("*->Clear    #->Enter");
       }
       inputTimer(pressed_key);
-      break;
-
-    default:
-      Serial.println("Default");
       break;
   }
 }

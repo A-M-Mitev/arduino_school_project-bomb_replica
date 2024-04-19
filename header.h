@@ -39,6 +39,8 @@ unsigned long time_of_bomb_activation, next_beep = 1000, last_beep = 0;
 
 String password = "1234";                // default password
 String input_password = "";
+String input_timer = "";
+
 String stars = "";
 String exmarks = "";
 unsigned int number_of_exmarks = 0;
@@ -49,17 +51,16 @@ unsigned long findNextBeep(unsigned long current_time, unsigned int time_left);
 // Responsible for buzzer and LED activation.
 void beep(unsigned long current_time, unsigned int time_left);
 
-void clearPassword();
+void clearInput();
+void inputPassword(char key);
 void enterPassword();
 void wrongPassword();
-void inputPassword(char key);
+void inputTimer(char key);
+float convertInputTimer();
 
 void restartBomb(char key);
 
-void inputTimer(char key);
-
 void printTimeLeft(unsigned int time_left);
-
 void setStars();
 void printStars();
 // Loading Bar 

@@ -16,8 +16,9 @@ void beep(unsigned long current_time, unsigned int time_left) {
   }
 }
 
-void clearPassword() {
+void clearInput() {
   input_password = "";
+  input_timer = "";
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Clearing input...");
@@ -26,7 +27,9 @@ void clearPassword() {
   Serial.println("Clearing input...");
   delay(1000);
   lcd.clear();
-  printStars();
+  if(BombState != ChangeTimer) {
+    printStars();
+  }
 }
 
 void enterPassword() {
@@ -103,7 +106,7 @@ void inputPassword(char key) {
     case NO_KEY:
       break;
     case '*':
-      clearPassword();
+      clearInput();
       break;
     case '#':
       enterPassword();
@@ -123,15 +126,44 @@ void inputTimer(char key) {
     case NO_KEY:
       break;
     case '*':
-      //clearPassword();
+      clearInput();
       break;
-    case '#':
-      //enterPassword();
+    case '#': {
+      float new_timer = convertInputTimer();
+      if(new_timer >= 5 && new_timer < 1000) {
+        init_timer = new_timer;
+        BombState = SettingsMenu;
+        lcd.clear();
+        lcd.setCursor(0, 1);
+        lcd.print("NEW TIMER SET!");
+        lcd.setCursor(0, 2);
+        lcd.print(input_timer);
+        lcd.print(" seconds");
+        delay(1000);
+        lcd.clear();
+      }
+      else {
+        lcd.clear();
+        lcd.setCursor(1, 2);
+        lcd.print("(4 < timer < 1000)");
+      }
+      input_timer = "";
       break;
+    }
     default:
-      //input_password += key;
+      input_timer += key;
+      lcd.setCursor(0, 1);
+      lcd.print(input_timer);
       break;
   }
+}
+
+float convertInputTimer() {
+  float new_timer = 0;
+  for(int i = 0; input_timer[i] != '\0'; ++i) {
+    new_timer = new_timer * 10 + (input_timer[i] - '0');
+  }
+  return new_timer;
 }
 
 void restartBomb(char key) {
