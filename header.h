@@ -17,7 +17,8 @@ enum BombStates {
   Exploded,
   SettingsMenu,
   ChangePassword,
-  ChangeTimer
+  ChangeTimer,
+  ChangeDefuse
 };
 
 enum BombStates BombState = WaitingForInput;
@@ -70,6 +71,7 @@ void restartBomb(char key);
 void updatePasswordLength();
 void printStars();
 void printTimeLeft(unsigned long time_left);
+void printDefuseTime();
 // Loading Bar 
 void printExMarks(unsigned int new_number_of_exmarks); 
 

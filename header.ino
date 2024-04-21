@@ -92,9 +92,9 @@ void enterPassword() {
     password = input_password;
     updatePasswordLength();
     lcd.clear();
-    lcd.setCursor(0, 1);
+    lcd.setCursor(2, 1);
     lcd.print("NEW PASSWORD SET!");
-    lcd.setCursor(0, 2);
+    lcd.setCursor((20 - input_length) / 2, 2);
     lcd.print(password);
     delay(1000);
     lcd.clear();
@@ -126,7 +126,7 @@ void inputPassword(char key) {
     enterPassword();
     break;
   default:
-    if(input_length <= 20) {
+    if(input_length < 20) {
       input_password += key;
       ++input_length;
       printStars();
@@ -135,7 +135,7 @@ void inputPassword(char key) {
     }
     else {
       lcd.setCursor(0, 2);
-      lcd.print("Password length < 21");
+      lcd.print("Password is too long");
     }
     break;
   }
@@ -150,22 +150,24 @@ void inputTimer(char key) {
     break;
   case '#': {
     double new_timer = convertInputTimer();
-    if(new_timer >= 5 && new_timer < 1000) {
+    if(new_timer > 10) {
       init_timer = new_timer * 1000;
       BombState = SettingsMenu;
       lcd.clear();
-      lcd.setCursor(0, 1);
+      lcd.setCursor(3, 1);
       lcd.print("NEW TIMER SET!");
       lcd.setCursor(5, 2);
       lcd.print(input_timer);
       lcd.print(" seconds");
-      delay(1000);
+      delay(1500);
       lcd.clear();
     }
     else {
       lcd.clear();
-      lcd.setCursor(1, 2);
-      lcd.print("(4 < timer < 1000)");
+      lcd.setCursor(4, 2);
+      lcd.print("                    ");
+      lcd.setCursor(4, 2);
+      lcd.print("[timer > 10]");
     }
     input_timer = "";
     input_length = 0;
@@ -175,14 +177,14 @@ void inputTimer(char key) {
     if(input_length < 3) {
       input_timer += key;
       ++input_length;
-      lcd.setCursor(20 - input_length, 1);
+      lcd.setCursor(9, 1);
       lcd.print(input_timer);
     }
     else {
-      lcd.setCursor(1, 2);
+      lcd.setCursor(3, 2);
       lcd.print("                    ");
-      lcd.setCursor(1, 2);
-      lcd.print("(4 < timer < 1000)");
+      lcd.setCursor(3, 2);
+      lcd.print("[timer < 1000]");
     }
     break;
   }
@@ -218,6 +220,22 @@ void printTimeLeft(unsigned long time_left) {
   if(time_left < 10000)
     lcd.print(" ");
   lcd.print(time_left / 1000);
+}
+
+void printDefuseTime() {
+  lcd.clear();
+  lcd.setCursor(0, 1);
+  lcd.print("DEFUSE TIME CHANGED!");
+  lcd.setCursor(5, 2);
+  lcd.print(defusing_time / 1000);
+  if(defusing_time == 10000)
+    lcd.setCursor(7, 2);
+  else 
+    lcd.setCursor(6, 2);
+  lcd.print(" seconds");
+  delay(1500);
+  lcd.clear();
+  BombState = SettingsMenu;
 }
 
 void updatePasswordLength() {

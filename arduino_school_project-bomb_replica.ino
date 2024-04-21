@@ -108,11 +108,13 @@ void loop()
 
   case SettingsMenu:
     lcd.setCursor(0, 0); 
-    lcd.print("Press [] to:");
+    lcd.print("Press [] to change:");
     lcd.setCursor(0, 1); 
-    lcd.print("[1] change password");
+    lcd.print("[1] password");
     lcd.setCursor(0, 2);
-    lcd.print("[2] change timer"); 
+    lcd.print("[2] defuse time");
+    lcd.setCursor(0, 3);
+    lcd.print("[3] timer");  
     lcd.setCursor(13, 3); 
     lcd.print("#->Back");
     switch(pressed_key) {
@@ -121,8 +123,12 @@ void loop()
         stars = "";
         lcd.clear();
         break;
-      case '2':
+      case '3':
         BombState = ChangeTimer;
+        lcd.clear();
+        break;
+      case '2':
+        BombState = ChangeDefuse;
         lcd.clear();
         break;
       case '#':
@@ -154,8 +160,8 @@ void loop()
     break;
 
   case ChangeTimer:
-    lcd.setCursor(0, 0); 
-    lcd.print("Enter new timer:");
+    lcd.setCursor(3, 0); 
+    lcd.print("Change timer:");
     if(input_timer == "") {
       lcd.setCursor(13, 3);
       lcd.print("#->Back");
@@ -170,6 +176,31 @@ void loop()
       lcd.print("*->Clear    #->Enter");
     }
     inputTimer(pressed_key);
+    break;
+  
+  case ChangeDefuse:
+    lcd.setCursor(0, 0); 
+    lcd.print("Defuse kit?");
+    lcd.setCursor(0, 1); 
+    lcd.print("[1] Yes -> 5 seconds");
+    lcd.setCursor(0, 2);
+    lcd.print("[2] No -> 10 seconds");  
+    lcd.setCursor(13, 3); 
+    lcd.print("#->Back");
+    switch(pressed_key) {
+      case '1':
+        defusing_time = 5000;
+        printDefuseTime(); 
+        break;
+      case '2':
+        defusing_time = 10000;
+        printDefuseTime();
+        break;
+      case '#':
+        BombState = SettingsMenu;
+        lcd.clear();
+        break;
+    }
     break;
   }
 }
