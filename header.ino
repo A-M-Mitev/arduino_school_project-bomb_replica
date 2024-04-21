@@ -1,5 +1,31 @@
 #include "header.h"
 
+void checkDefusing(char key) {
+  if(BombState == Armed && key == '0') {
+    switch(keypad.getState()) {
+      case PRESSED:
+        defusing = true;
+        defusing_started = millis();
+        lcd.setCursor(0, 0);
+        lcd.print("                    ");
+        break;
+
+      case RELEASED:
+        defusing = false;
+        input_password = "";
+        input_length = 0;
+        lcd.setCursor(0, 0);
+        lcd.print("                    ");
+        break;
+
+      case HOLD: {
+        defusing = true;
+        break;
+      }
+    }
+  }
+}
+
 unsigned long findNextBeep(unsigned long current_time, unsigned long time_left) {
   return (0.1 + 0.9 * (time_left / init_timer)) * 2000 + current_time;
 }
@@ -9,7 +35,7 @@ void beep(unsigned long current_time, unsigned long time_left) {
     tone(buzzer, 2200, beep_length);
     //tone(buzzer, 2564, BEEP_LENGTH);
     //tone(buzzer, 4231, BEEP_LENGTH);
-    digitalWrite(led, !digitalRead(led)); // toggle
+    digitalWrite(led, !digitalRead(led));    // toggle
     next_beep = findNextBeep(current_time, time_left);
   }
 }
@@ -34,62 +60,45 @@ void clearInput() {
   lcd.print("--------------------");
   delay(1000);
   lcd.clear();
-  if(BombState != ChangeTimer) {
+  if(BombState != ChangeTimer)
     printStars();
-  }
 }
 
 void enterPassword() {
   switch(BombState) {
-    case WaitingForInput:
-      if(input_password == password) {
-        BombState = Armed;
-        time_of_bomb_activation = millis() + 1000;
-        next_beep = time_of_bomb_activation;
-        lcd.clear();
-        lcd.setCursor(6, 0);
-        lcd.print("THE BOMB");
-        lcd.setCursor(6, 1);
-        lcd.print("HAS BEEN");
-        lcd.setCursor(7, 2);
-        lcd.print("PLANTED");
-        delay(1000);
-        lcd.clear();
-        printStars();
-      }
-      else 
-        wrongPassword();
-      break;
-
-    case Armed:
-      if(input_password == password) {
-        BombState = Disarmed;
-        lcd.clear();
-        lcd.setCursor(6, 0);
-        lcd.print("THE BOMB");
-        lcd.setCursor(6, 1);
-        lcd.print("HAS BEEN");
-        lcd.setCursor(7, 2);
-        lcd.print("DEFUSED");
-        delay(1000);
-        lcd.clear();
-      }
-      else
-        wrongPassword();
-      break;
-
-    case ChangePassword:
-      BombState = SettingsMenu;
-      password = input_password;
-      updatePasswordLength();
+  case WaitingForInput:
+    if(input_password == password) {
+      BombState = Armed;
+      defusing = 0;
+      time_of_bomb_activation = millis() + 1000;
+      next_beep = time_of_bomb_activation;
       lcd.clear();
-      lcd.setCursor(0, 1);
-      lcd.print("NEW PASSWORD SET!");
-      lcd.setCursor(0, 2);
-      lcd.print(password);
+      lcd.setCursor(6, 0);
+      lcd.print("THE BOMB");
+      lcd.setCursor(6, 1);
+      lcd.print("HAS BEEN");
+      lcd.setCursor(7, 2);
+      lcd.print("PLANTED");
       delay(1000);
       lcd.clear();
-      break;
+      printStars();
+    }
+    else 
+      wrongPassword();
+    break;
+
+  case ChangePassword:
+    BombState = SettingsMenu;
+    password = input_password;
+    updatePasswordLength();
+    lcd.clear();
+    lcd.setCursor(0, 1);
+    lcd.print("NEW PASSWORD SET!");
+    lcd.setCursor(0, 2);
+    lcd.print(password);
+    delay(1000);
+    lcd.clear();
+    break;
   }
   input_password = "";
   input_length = 0;
@@ -108,74 +117,74 @@ void wrongPassword() {
 
 void inputPassword(char key) {
   switch(key) {
-    case NO_KEY:
-      break;
-    case '*':
-      clearInput();
-      break;
-    case '#':
-      enterPassword();
-      break;
-    default:
-      if(input_length <= 20) {
-        input_password += key;
-        ++input_length;
-        printStars();
-        lcd.setCursor(0, 1);
-        lcd.print(input_password);
-      }
-      else {
-        lcd.setCursor(0, 2);
-        lcd.print("Password length < 21");
-      }
-      break;
+  case NO_KEY:
+    break;
+  case '*':
+    clearInput();
+    break;
+  case '#':
+    enterPassword();
+    break;
+  default:
+    if(input_length <= 20) {
+      input_password += key;
+      ++input_length;
+      printStars();
+      lcd.setCursor(20 - input_length, 1);
+      lcd.print(input_password);
+    }
+    else {
+      lcd.setCursor(0, 2);
+      lcd.print("Password length < 21");
+    }
+    break;
   }
 }
 
 void inputTimer(char key) {
   switch(key) {
-    case NO_KEY:
-      break;
-    case '*':
-      clearInput();
-      break;
-    case '#': {
-      double new_timer = convertInputTimer();
-      if(new_timer >= 5 && new_timer < 1000) {
-        init_timer = new_timer * 1000;
-        BombState = SettingsMenu;
-        lcd.clear();
-        lcd.setCursor(0, 1);
-        lcd.print("NEW TIMER SET!");
-        lcd.setCursor(5, 2);
-        lcd.print(input_timer);
-        lcd.print(" seconds");
-        delay(1000);
-        lcd.clear();
-      }
-      else {
-        lcd.clear();
-        lcd.setCursor(1, 2);
-        lcd.print("(4 < timer < 1000)");
-      }
-      input_timer = "";
-      input_length = 0;
-      break;
+  case NO_KEY:
+    break;
+  case '*':
+    clearInput();
+    break;
+  case '#': {
+    double new_timer = convertInputTimer();
+    if(new_timer >= 5 && new_timer < 1000) {
+      init_timer = new_timer * 1000;
+      BombState = SettingsMenu;
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("NEW TIMER SET!");
+      lcd.setCursor(5, 2);
+      lcd.print(input_timer);
+      lcd.print(" seconds");
+      delay(1000);
+      lcd.clear();
     }
-    default:
-      if(input_length < 3) {
-        input_timer += key;
-        ++input_length;
-        lcd.setCursor(0, 1);
-        lcd.print(input_timer);
-      }
-      else {
-        lcd.setCursor(1, 2);
-        lcd.print("                  ");
-        lcd.setCursor(1, 2);
-        lcd.print("(4 < timer < 1000)");
-      }
-      break;
+    else {
+      lcd.clear();
+      lcd.setCursor(1, 2);
+      lcd.print("(4 < timer < 1000)");
+    }
+    input_timer = "";
+    input_length = 0;
+    break;
+  }
+  default:
+    if(input_length < 3) {
+      input_timer += key;
+      ++input_length;
+      lcd.setCursor(20 - input_length, 1);
+      lcd.print(input_timer);
+    }
+    else {
+      lcd.setCursor(1, 2);
+      lcd.print("                    ");
+      lcd.setCursor(1, 2);
+      lcd.print("(4 < timer < 1000)");
+    }
+    break;
   }
 }
 
@@ -188,15 +197,16 @@ double convertInputTimer() {
 }
 
 void restartBomb(char key) {
-  lcd.setCursor(10, 3); 
-  lcd.print("#->Restart");
   if(key == '#') {
     BombState = WaitingForInput;
     exmarks = "";
     number_of_exmarks = 0;
+    input_password = "";
+    input_length = 0;
+    defusing = 0;
     lcd.clear();
-    lcd.setCursor(0, 1); 
-    lcd.print("Restarting...");  
+    lcd.setCursor(0, 1);
+    lcd.print("Restarting...");
     delay(1000);
     lcd.clear();
     printStars();
@@ -204,7 +214,7 @@ void restartBomb(char key) {
 }
 
 void printTimeLeft(unsigned long time_left) {
-  lcd.setCursor(9, 2);
+  lcd.setCursor(9, 3);
   if(time_left < 10000)
     lcd.print(" ");
   lcd.print(time_left / 1000);
@@ -219,7 +229,7 @@ void updatePasswordLength() {
 }
 
 void printStars() {
-  lcd.setCursor(0, 1); 
+  lcd.setCursor(20 - password_length, 1); 
   lcd.print(stars);
 }
 
@@ -228,8 +238,8 @@ void printExMarks(unsigned int new_number_of_exmarks) {
     number_of_exmarks = new_number_of_exmarks;
     exmarks += '!';
   }
-  lcd.setCursor(0, 2);
+  lcd.setCursor(0, 3);
   lcd.print(exmarks);
-  lcd.setCursor(20 - number_of_exmarks, 2);
+  lcd.setCursor(20 - number_of_exmarks, 3);
   lcd.print(exmarks);
 }
