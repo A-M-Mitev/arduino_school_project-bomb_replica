@@ -71,7 +71,7 @@ void loop()
     }
     else {
       lcd.setCursor(0, 0); 
-      lcd.print("Hold 0 to defuse");
+      lcd.print("Hold # to defuse");
     }
    
     unsigned long time_passed = current_time - time_of_bomb_activation;

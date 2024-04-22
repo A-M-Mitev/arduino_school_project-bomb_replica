@@ -1,7 +1,7 @@
 #include "header.h"
 
 void checkDefusing(char key) {
-  if(BombState == Armed && key == '0') {
+  if(BombState == Armed && key == '#') {
     switch(keypad.getState()) {
       case PRESSED:
         defusing = true;
@@ -17,11 +17,6 @@ void checkDefusing(char key) {
         lcd.setCursor(0, 0);
         lcd.print("                    ");
         break;
-
-      case HOLD: {
-        defusing = true;
-        break;
-      }
     }
   }
 }
